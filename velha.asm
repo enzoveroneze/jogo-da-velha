@@ -12,15 +12,17 @@
 .eqv    READ_CHAR   12
 .eqv    EXIT        17  
 .eqv    SUCCESS     0
+.eqv    FAILURE     1
 
 main:
 
-
-
     addi $a0, $0, SUCCESS
     j exit
+
     
-    exit:
-        addi $v0, $0, EXIT
-        syscall
-            
+
+# Encerra o programa
+# $a0: Código de saída
+exit:
+    addi $v0, $0, EXIT
+    syscall
