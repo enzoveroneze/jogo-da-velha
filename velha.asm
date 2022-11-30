@@ -8,9 +8,10 @@
 # N é o número de registradores não temporários que a função altera.
 
 .data
-char_X: 'X'
-char_O: 'O'
-char_empty: '-'
+char_X:         .byte   'X'
+char_O:         .byte   'O'
+char_dash:      .byte   '-'
+char_vertical:  .byte   '|'
 
 
 .text 
