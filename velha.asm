@@ -59,14 +59,11 @@ exit:
 # $a0: byte[9]
 clear:
     #
-    # fp
     # $s0 -> i
     #
     # Prólogo
-    subi $sp, $sp, 8
-    sw $fp, 8($sp)
-    sw $s0, 4($sp) 
-    la $fp, 8($sp) 
+    subi $sp, $sp, 4
+    sw $s0, 0($sp) 
     #
     addi $s0, $0, 0
     addi $t0, $0, 9
@@ -82,7 +79,8 @@ clear:
         j l0
     e0:
     # Epílogo
-    addi $sp, $sp, 8
+    lw $s0, 0($sp)
+    addi $sp, $sp, 4
     #
     jr $ra
 
