@@ -1,3 +1,12 @@
+# Prioridade em procedimentos:
+# $a0 -> Vetor X
+# $a1 -> Vetor O
+
+# Stack pointer em procedimentos:
+# Antes -> Diminuir (4 * N) de $sp
+# Depois -> Retornar $sp ao valor inicial
+# N é o número de registradores $s ou $ra usados pelo procedimento.
+
 .data
 
 
