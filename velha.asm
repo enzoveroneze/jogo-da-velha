@@ -3,9 +3,9 @@
 # $a1 -> Vetor O
 
 # Stack pointer em procedimentos:
-# Antes -> Diminuir (4 * N) de $sp
-# Depois -> Retornar $sp ao valor inicial
-# N é o número de registradores $s ou $ra usados pelo procedimento.
+# Antes -> Diminuir (4 * N) de $sp, salvar valor dos registradores que serão usados.
+# Depois -> Retornar $sp ao valor inicial, restaurar valor dos registradores.
+# N é o número de registradores não temporários que a função altera.
 
 .data
 
