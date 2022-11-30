@@ -8,6 +8,9 @@
 # N é o número de registradores não temporários que a função altera.
 
 .data
+char_X: 'X'
+char_O: 'O'
+char_empty: '-'
 
 
 .text 
@@ -29,13 +32,13 @@ main:
     # $s1: byte[9] -> Vetor O
     #
 
-    subi $sp, $sp, 18
-    lw $fp, 18($sp)
+    subi $sp, $sp, 24
+    la $fp, 24($sp)
 
-    la, $s0, 9($sp)
+    la, $s0, 0($fp)
     move $a0, $s0
     jal clear
-    la, $s1, 18($sp)
+    la, $s1, -12($fp)
     move $a0, $s1
     jal clear
 
@@ -54,4 +57,31 @@ exit:
 # Limpa um vetor de 9 bytes para 0
 # $a0: byte[9]
 clear:
+    #
+    # fp
+    # $s0 -> i
+    #
+    # Prólogo
+    subi $sp, $sp, 8
+    sw $fp, 8($sp)
+    sw $s0, 4($sp) 
+    la $fp, 8($sp) 
+    #
+    addi $s0, $0, 0
+    addi $t0, $0, 9
+    l0:
+        beq $s0, $t0, e0
+
+        add $t1, $a0, $s0
+        lb $t2, 0($t1)
+        xor $t2, $t2, $t2
+        sb $t2, 0($t1)
+
+        addi $s0, $s0, 1
+        j l0
+    e0:
+    # Epílogo
+    addi $sp, $sp, 8
+    #
+    jr $ra
 
