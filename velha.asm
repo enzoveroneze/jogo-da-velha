@@ -12,6 +12,7 @@ char_X:         .byte   'X'
 char_O:         .byte   'O'
 char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
+char_underline: .byte   '_'
 
 
 .text 
@@ -84,3 +85,21 @@ clear:
     #
     jr $ra
 
+
+# Desenha o estado atual do tabuleiro
+# $a0 -> byte[9]
+# $a1 -> byte[9]
+draw_board:
+    #
+    # $s0 -> i
+    #
+    # Prólogo
+    subi $sp, $sp, 4
+    sw $s0, 0($sp)
+    #
+
+
+    # Epílogo
+    lw $s0, 0($sp)
+    addi $sp, $sp, 4
+    #
