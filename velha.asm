@@ -14,6 +14,14 @@ char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_underline: .byte   '_'
 
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 .text 
 .globl  main
@@ -99,6 +107,31 @@ draw_board:
     #
 
 
+    # Epílogo
+    lw $s0, 0($sp)
+    addi $sp, $sp, 4
+    #
+
+# Verifica se o jogador venceu a partida.
+# $a0 -> byte[9]
+# $v0 -> 1 se sim, 0 se não
+check_winner:
+    #
+    # $s0 -> i
+    # $s1 -> j
+    #
+    # Prólogo
+    subi $sp, $sp, 4
+    sw $s0, 0($sp)
+    #
+    addi $s0, $0, 0
+    l1:
+        if
+    e1:
+
+
+
+    f1:
     # Epílogo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
