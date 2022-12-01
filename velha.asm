@@ -8,12 +8,15 @@
 # N é o número de registradores não temporários que a função altera.
 
 .data
-char_X:         .byte   'X'
-char_O:         .byte   'O'
-char_dash:      .byte   '-'
-char_vertical:  .byte   '|'
-char_underline: .byte   '_'
-
+char_X:         .asciiz   "X"
+char_O:         .asciiz   "O"
+char_dash:      .asciiz   "-"
+char_vertical:  .asciiz   "|"
+char_underline: .asciiz   "_"
+char_space:     .asciiz   " "
+array:
+	.align 2
+	.space 36
 
 .text 
 .globl  main
@@ -28,6 +31,7 @@ char_underline: .byte   '_'
 .eqv    SUCCESS     0
 .eqv    FAILURE     1
 
+
 main:
     #
     # $s0: byte[9] -> Vetor X
@@ -39,12 +43,12 @@ main:
 
     la, $s0, 0($fp)
     move $a0, $s0
+
     jal clear
     la, $s1, -12($fp)
     move $a0, $s1
     jal clear
-
-
+    
     addi $a0, $0, SUCCESS
     j exit
 
@@ -89,6 +93,7 @@ clear:
 # Desenha o estado atual do tabuleiro
 # $a0 -> byte[9]
 # $a1 -> byte[9]
+
 draw_board:
     #
     # $s0 -> i
@@ -96,8 +101,22 @@ draw_board:
     # Prólogo
     subi $sp, $sp, 4
     sw $s0, 0($sp)
+    
+    move $t0, $zero #indice array
+    move $t1, $zero #valor do array
+    li $t2, 36
+    
+    #la $a0, char_space
+    #addiu $v0, $zero, PRINT_STR
+    #syscall
+    
+    la $a0, char_vertical
+    addiu $v0, $zero, PRINT_STR
+    syscall
     #
-
+    addi $s0, $s0, 1
+	j draw_board
+    #
 
     # Epílogo
     lw $s0, 0($sp)
