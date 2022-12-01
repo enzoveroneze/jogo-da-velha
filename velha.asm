@@ -8,15 +8,20 @@
 # N é o número de registradores não temporários que a função altera.
 
 .data
-char_X:         .asciiz   "X"
-char_O:         .asciiz   "O"
-char_dash:      .asciiz   "-"
-char_vertical:  .asciiz   "|"
-char_underline: .asciiz   "_"
-char_space:     .asciiz   " "
-array:
-	.align 2
-	.space 36
+char_X:         .byte   'X'
+char_O:         .byte   'O'
+char_dash:      .byte   '-'
+char_vertical:  .byte   '|'
+char_underline: .byte   '_'
+
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 .text 
 .globl  main
@@ -31,7 +36,6 @@ array:
 .eqv    SUCCESS     0
 .eqv    FAILURE     1
 
-
 main:
     #
     # $s0: byte[9] -> Vetor X
@@ -43,12 +47,12 @@ main:
 
     la, $s0, 0($fp)
     move $a0, $s0
-
     jal clear
     la, $s1, -12($fp)
     move $a0, $s1
     jal clear
-    
+
+
     addi $a0, $0, SUCCESS
     j exit
 
@@ -93,7 +97,6 @@ clear:
 # Desenha o estado atual do tabuleiro
 # $a0 -> byte[9]
 # $a1 -> byte[9]
-
 draw_board:
     #
     # $s0 -> i
@@ -101,23 +104,34 @@ draw_board:
     # Prólogo
     subi $sp, $sp, 4
     sw $s0, 0($sp)
-    
-    move $t0, $zero #indice array
-    move $t1, $zero #valor do array
-    li $t2, 36
-    
-    #la $a0, char_space
-    #addiu $v0, $zero, PRINT_STR
-    #syscall
-    
-    la $a0, char_vertical
-    addiu $v0, $zero, PRINT_STR
-    syscall
-    #
-    addi $s0, $s0, 1
-	j draw_board
     #
 
+
+    # Epílogo
+    lw $s0, 0($sp)
+    addi $sp, $sp, 4
+    #
+
+# Verifica se o jogador venceu a partida.
+# $a0 -> byte[9]
+# $v0 -> 1 se sim, 0 se não
+check_winner:
+    #
+    # $s0 -> i
+    # $s1 -> j
+    #
+    # Prólogo
+    subi $sp, $sp, 4
+    sw $s0, 0($sp)
+    #
+    addi $s0, $0, 0
+    l1:
+        if
+    e1:
+
+
+
+    f1:
     # Epílogo
     lw $s0, 0($sp)
     addi $sp, $sp, 4

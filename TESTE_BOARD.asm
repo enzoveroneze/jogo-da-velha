@@ -44,7 +44,7 @@ draw_board:
 			la $s0, tab
 			syscall
 			
-		jal exit
+		jr $ra
 		
 exit:
     addi $v0, $0, EXIT
