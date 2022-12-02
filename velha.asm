@@ -5,7 +5,7 @@
 # Stack pointer em procedimentos:
 # Antes => Diminuir (4 * N) de $sp, salvar valor dos registradores que ser?o usados.
 # Depois => Retornar $sp ao valor inicial, restaurar valor dos registradores.
-# N ? o n?mero de registradores n?o tempor?rios que a fun??o altera.
+# N é o número de registradores não temporários que a função altera.
 
 .data
 char_X:         .byte   'X'
@@ -85,7 +85,7 @@ main:
 
     
 # Encerra o programa
-# $a0: C?digo de sa?da
+# $a0: Código de saída
 exit:
     addi $v0, $0, EXIT
     syscall
@@ -97,7 +97,7 @@ clear:
     #
     # $s0 -> i
     #
-    # Pr?logo
+    # Prólogo
     subi $sp, $sp, 4
     sw $s0, 0($sp) 
     #
@@ -114,7 +114,7 @@ clear:
         addi $s0, $s0, 1
         j l0
     e0:
-    # Ep?logo
+    # Epílogo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
     #
@@ -138,37 +138,6 @@ draw_board:
     sw $s2, 8($sp)
     sw $ra, 12($sp)
     #
-    #
-    l3:           
-        addi $a0, $t0, $zero  
-        syscall
-        li $t0, 4
-        la $t0, char_space
-        li $t1, 4
-        la $t1, char_vertical
-        #
-	l4:
-		bgt $s1, 12, l5
-		addi $s1, $s1, 4
-		j loop
-		#
-	l5:	
-		move $s1, $zero
-		li $t1, 56
-		print:
-			li $v0, 4
-			la $s0, str_separator
-			syscall
-		#	
-		jr $ra
-    # $a3 = 0
-    # desenha linha
-    # desenha separador
-    # a3 = 3
-    # desenha linha
-    # desenha separador
-    # a3 = 6
-    # desenha linha
 
     addi $s2, $0, 0
     jal draw_line
@@ -258,14 +227,14 @@ draw_board:
 
 # Verifica se o jogador venceu a partida.
 # $a0 -> byte[12]
-# $v0 -> 1 se sim, 0 se n?o
+# $v0 -> 1 se sim, 0 se não
 check_winner:
     #
     # $s0 -> i
     # $s1 -> n
     # $ra
     #
-    # Pr?logo
+    # Prólogo
     subi $sp, $sp, 12
     sw $s0, 0($sp)
     sw $s1, 4($sp)
@@ -296,7 +265,7 @@ check_winner:
         #
         # $s0 -> i
         #
-        # Pr?logo
+        # Prólogo
             subi $sp, $sp, 4
             sw $s0, 0($sp)
         #
@@ -314,7 +283,7 @@ check_winner:
 
                 la $t3, 0($a1)
                 add $t3, $t3, $t1
-                lw $t3, 0($t3) # <- Word m?scara
+                lw $t3, 0($t3) # <- Word máscara
 
                 and $t1, $t2, $t3
                 bne $t1, $t3, neq
@@ -327,7 +296,7 @@ check_winner:
                     j e2
 
             e2:
-                # Ep?logo
+                # Epílogo
                 lw $s0, 0($sp)
                 addi $sp, $sp, 4
                 #
@@ -347,7 +316,7 @@ check_winner:
 # a0: byte[9]
 # a1: byte[9]
 move_player:
- 	# Pr?logo
+ 	# Prólogo
 	subi $sp, $sp, 4
    	sw $s0, 0($sp)
     #
@@ -377,12 +346,12 @@ move_player:
 		addi $a0($t3), $zero, 1
 		jr $ra
 		
-	#Epilogo
+	#Epílogo
 	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
 
-# Gera o movimento da intelig?ncia aritificial.
+# Gera o movimento da inteligência artificial.
 # a0: byte[9]
 # a1: byte[9]
 move_ai:
