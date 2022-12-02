@@ -10,9 +10,9 @@
 .data
 char_X:         .byte   'X'
 char_O:         .byte   'O'
-char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
-char_underline: .byte   '_'
+char_space:     .byte   ' '
+str_separator:  .asciiz "\n---|---|---\n"
 
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
