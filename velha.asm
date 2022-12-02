@@ -56,8 +56,29 @@ main:
     move $a1, $s1
     jal clear
 
-    jal draw_board
-
+    # mensagem inicial
+    # contador de jogadas i = 0
+    # loop:
+        # se i == 9: carrega mensagem empate e vai pro fim
+        # mostra tabuleiro
+        # movimento do jogador
+        # confere jogada
+            # se venceu: carrega mensagem da vitoria X e vai pro fim
+        # mostra tabuleiro
+        # movimento ia
+        # confere jogada
+            # se venceu: carrega mesagem da vitoria O e vai pro fim
+        # i++
+        # jump loop
+    # fim:
+        # mostra mensagem do resultado
+        # pergunta se quer jogar de novo
+        # recebe resposta
+        # se S:
+            # chama clear nos vetores
+            # i = 0
+            # jump loop
+        #deixa terminar o programa
 
     addi $a0, $0, SUCCESS
     j exit
