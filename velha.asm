@@ -3,7 +3,9 @@
 # $a1 => Vetor O
 
 # Stack pointer em procedimentos:
+# Antes => Diminuir (4 * N) de $sp, salvar valor dos registradores que ser?o usados.
 # Depois => Retornar $sp ao valor inicial, restaurar valor dos registradores.
+# N ? o n?mero de registradores n?o tempor?rios que a fun??o altera.
 
 .data
 char_X:         .byte   'X'
@@ -272,7 +274,7 @@ move_player:
 		jr $ra
 		
 	#Epilogo
-	lw $s0, 0($sp
+	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
 
