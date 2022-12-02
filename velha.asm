@@ -10,6 +10,7 @@
 .data
 char_X:         .byte   'X'
 char_O:         .byte   'O'
+char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
@@ -32,6 +33,9 @@ mask_8:         .byte   0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0
 .eqv    READ_INT    5
 .eqv    READ_STR    8
 .eqv    READ_CHAR   12
+.eqv    TIME        30
+.eqv    SET_SEED    40
+.eqv    RAND_INT    42
 .eqv    EXIT        17  
 .eqv    SUCCESS     0
 .eqv    FAILURE     1
@@ -99,7 +103,7 @@ clear:
 # $a1 -> byte[9]
 draw_board:
     #
-    # $s0 -> i
+    # $s0
     #
     # Prólogo
     subi $sp, $sp, 4
@@ -128,6 +132,18 @@ draw_board:
 			syscall
 		#	
 		jr $ra
+    # $a3 = 0
+    # desenha linha
+    # desenha separador
+    # a3 = 3
+    # desenha linha
+    # desenha separador
+    # a3 = 6
+    # desenha linha
+
+    # (desenha linha deslocando pelo valor em $a3)
+    #desenha linha:
+        # la $v0, char_dash
 
     # Epílogo
     lw $s0, 0($sp)
@@ -226,6 +242,18 @@ check_winner:
 # a0: byte[9]
 # a1: byte[9]
 move_player:
+
+    # receber:
+        # receber dois números 1-3, linha e coluna, por syscall READ_INT
+        # decrementar eles em 1 
+        # posição = linha * 3 + coluna (multiplicar com mul)
+    # se nessa posição o vetor X é diferente de 0 (beq com $0) jump para receber
+    # se nessa posição o vetor O é diferente de 0 (beq com $0) jump para receber
+
+    # colocar 1 na posição do vetor X
+
+    # jr $ra
+
 
 
 # Gera o movimento da inteligência aritificial.
