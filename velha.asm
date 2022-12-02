@@ -15,7 +15,7 @@ char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
 str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
-str_fail:       .asciiz "\nNï¿½meros invï¿½lidos, insira novamente."
+str_fail:       .asciiz "\nN?meros inv?lidos, insira novamente."
 
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 mask_2:         .byte   0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0
@@ -248,29 +248,34 @@ move_player:
    	sw $s0, 0($sp)
     #
     #t1 -> lin
-	addi $t1, $zero, READ_INT 
+    la $t0, str_fail
+	addi $v0, $0, PRINT_STR
+	addi $v0, $zero, READ_INT 
 	syscall
+	move $v0, $s1
 	#t2 -> col
-	addi $t2, $zero, READ_INT
+	addi $v0, $zero, READ_INT
 	syscall
-	sub $t1, $t1, 1    
-	sub $t2, $t2, 1
-	li $t3, 3
-	bgt $t1, $t3, msg
-	bgt $t2, $t3, msg
+	move $v0, $s2
+	sub $s1, $s1, 1    
+	sub $s2, $s2, 1
+	li $s3, 3
+	bgt $s1, $s3, move_fail
+	bgt $s2, $s3, move_fail
 	
 	mul $t3, $t1, $t3
 	add $t3, $t3, $t2
 		
 	bne $a0($t3), $0, accept_move			
 		
-	msg: 
+	move_fail: 
 		la $t0, str_fail
 		addi $v0, $0, PRINT_STR
 		j move_player
 			
 	accept_move:
-		addi $a0($t3), $zero, 1
+		lw $t3, 0($a0)      # $t3 = x[i], carregando o elemento do índice i      
+		addi $t3, $zero, 1  # somando os elementos (x[i] = 0+ 1
 		jr $ra
 		
 	#Epilogo
