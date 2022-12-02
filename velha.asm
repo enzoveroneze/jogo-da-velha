@@ -262,10 +262,10 @@ move_player:
 		bgt $s1, $s3, move_fail
 		bgt $s2, $s3, move_fail
 	#
-		mul $t3, $t1, $t3
-		add $t3, $t3, $t2
-	#	
-		bne $a0($t3), $0, accept_move			
+		mul $s3, $s1, $s3
+		add $s3, $s3, $s2
+	#
+		bne $a0($s3), $0, accept_move			
 	#		
 		move_fail: 
 			la $t0, str_fail
@@ -273,8 +273,10 @@ move_player:
 			j receive_move
 	#		
 		accept_move:
-			lw $t3, 0($a0)      # $t3 = x[i], carregando o elemento do índice i      
-			addi $t3, $zero, 1  # somando os elementos (x[i] = 0+ 1
+			li $t1, 4
+			mul $t2, $t1, $s3
+			lb $s3, $t2($a0)      # $s3 = x[i], carregando o elemento do índice i      
+			addi $s3, $zero, 1  # somando os elementos (x[i] = 0+ 1
 			jr $ra
 	#	
 	#Epilogo
