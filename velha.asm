@@ -3,9 +3,7 @@
 # $a1 => Vetor O
 
 # Stack pointer em procedimentos:
-# Antes => Diminuir (4 * N) de $sp, salvar valor dos registradores que serão usados.
 # Depois => Retornar $sp ao valor inicial, restaurar valor dos registradores.
-# N é o número de registradores não temporários que a função altera.
 
 .data
 char_X:         .byte   'X'
@@ -14,6 +12,8 @@ char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
+str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
+str_fail:       .asciiz "\nN�meros inv�lidos, insira novamente."
 
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 mask_2:         .byte   0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0
@@ -45,7 +45,6 @@ main:
     # $s0: byte[12] -> Vetor X
     # $s1: byte[12] -> Vetor O
     #
-
     subi $sp, $sp, 24
     la $fp, 24($sp)
 
@@ -62,7 +61,7 @@ main:
 
     
 # Encerra o programa
-# $a0: Código de saída
+# $a0: C?digo de sa?da
 exit:
     addi $v0, $0, EXIT
     syscall
@@ -74,7 +73,7 @@ clear:
     #
     # $s0 -> i
     #
-    # Prólogo
+    # Pr?logo
     subi $sp, $sp, 4
     sw $s0, 0($sp) 
     #
@@ -91,7 +90,7 @@ clear:
         addi $s0, $s0, 1
         j l0
     e0:
-    # Epílogo
+    # Ep?logo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
     #
@@ -105,7 +104,7 @@ draw_board:
     #
     # $s0
     #
-    # Prólogo
+    # Pr?logo
     subi $sp, $sp, 4
     sw $s0, 0($sp)
     #
@@ -145,7 +144,7 @@ draw_board:
     #desenha linha:
         # la $v0, char_dash
 
-    # Epílogo
+    # Ep?logo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
     #
@@ -153,14 +152,14 @@ draw_board:
 
 # Verifica se o jogador venceu a partida.
 # $a0 -> byte[12]
-# $v0 -> 1 se sim, 0 se não
+# $v0 -> 1 se sim, 0 se n?o
 check_winner:
     #
     # $s0 -> i
     # $s1 -> n
     # $ra
     #
-    # Prólogo
+    # Pr?logo
     subi $sp, $sp, 12
     sw $s0, 0($sp)
     sw $s1, 4($sp)
@@ -191,7 +190,7 @@ check_winner:
         #
         # $s0 -> i
         #
-        # Prólogo
+        # Pr?logo
             subi $sp, $sp, 4
             sw $s0, 0($sp)
         #
@@ -209,7 +208,7 @@ check_winner:
 
                 la $t3, 0($a1)
                 add $t3, $t3, $t1
-                lw $t3, 0($t3) # <- Word máscara
+                lw $t3, 0($t3) # <- Word m?scara
 
                 and $t1, $t2, $t3
                 bne $t1, $t3, neq
@@ -222,14 +221,14 @@ check_winner:
                     j e2
 
             e2:
-                # Epílogo
+                # Ep?logo
                 lw $s0, 0($sp)
                 addi $sp, $sp, 4
                 #
                 jr $ra
     
     ret:
-        # Epílogo
+        # Ep?logo
         lw $s0, 0($sp)
         lw $s1, 4($sp)
         lw $ra, 8($sp)
@@ -242,21 +241,42 @@ check_winner:
 # a0: byte[9]
 # a1: byte[9]
 move_player:
+ 	# Pr?logo
+	subi $sp, $sp, 4
+   	sw $s0, 0($sp)
+    #
+    #t1 -> lin
+	addi $t1, $zero, READ_INT 
+	syscall
+	#t2 -> col
+	addi $t2, $zero, READ_INT
+	syscall
+	sub $t1, $t1, 1    
+	sub $t2, $t2, 1
+	li $t3, 3
+	bgt $t1, $t3, msg
+	bgt $t2, $t3, msg
+	
+	mul $t3, $t1, $t3
+	add $t3, $t3, $t2
+		
+	bne $a0($t3), $0, accept_move			
+		
+	msg: 
+		la $t0, str_fail
+		addi $v0, $0, PRINT_STR
+		j move_player
+			
+	accept_move:
+		addi $a0($t3), $zero, 1
+		jr $ra
+		
+	#Epilogo
+	lw $s0, 0($sp
+	addi $sp, $sp, 4
 
-    # receber:
-        # receber dois números 1-3, linha e coluna, por syscall READ_INT
-        # decrementar eles em 1 
-        # posição = linha * 3 + coluna (multiplicar com mul)
-    # se nessa posição o vetor X é diferente de 0 (beq com $0) jump para receber
-    # se nessa posição o vetor O é diferente de 0 (beq com $0) jump para receber
 
-    # colocar 1 na posição do vetor X
-
-    # jr $ra
-
-
-
-# Gera o movimento da inteligência aritificial.
+# Gera o movimento da intelig?ncia aritificial.
 # a0: byte[9]
 # a1: byte[9]
 move_ai:
