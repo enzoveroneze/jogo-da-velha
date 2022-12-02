@@ -5,7 +5,7 @@
 # Stack pointer em procedimentos:
 # Antes => Diminuir (4 * N) de $sp, salvar valor dos registradores que ser?o usados.
 # Depois => Retornar $sp ao valor inicial, restaurar valor dos registradores.
-# N é o número de registradores não temporários que a função altera.
+# N ? o n?mero de registradores n?o tempor?rios que a fun??o altera.
 
 .data
 char_X:         .byte   'X'
@@ -48,44 +48,22 @@ main:
     # $s1: byte[12] -> Vetor O
     #
     subi $sp, $sp, 24
+    la $fp, 24($sp)
 
-    la, $s0, 0($sp)
+    la, $s0, 0($fp)
     move $a0, $s0
     jal clear
-    la, $s1, 12($sp)
-    move $a1, $s1
+    la, $s1, -12($fp)
+    move $a0, $s1
     jal clear
 
-    # mensagem inicial
-    # contador de jogadas i = 0
-    # loop:
-        # se i == 9: carrega mensagem empate e vai pro fim
-        # mostra tabuleiro
-        # movimento do jogador
-        # confere jogada
-            # se venceu: carrega mensagem da vitoria X e vai pro fim
-        # mostra tabuleiro
-        # movimento ia
-        # confere jogada
-            # se venceu: carrega mesagem da vitoria O e vai pro fim
-        # i++
-        # jump loop
-    # fim:
-        # mostra mensagem do resultado
-        # pergunta se quer jogar de novo
-        # recebe resposta
-        # se S:
-            # chama clear nos vetores
-            # i = 0
-            # jump loop
-        #deixa terminar o programa
 
     addi $a0, $0, SUCCESS
     j exit
 
     
 # Encerra o programa
-# $a0: Código de saída
+# $a0: C?digo de sa?da
 exit:
     addi $v0, $0, EXIT
     syscall
@@ -97,7 +75,7 @@ clear:
     #
     # $s0 -> i
     #
-    # Prólogo
+    # Pr?logo
     subi $sp, $sp, 4
     sw $s0, 0($sp) 
     #
@@ -114,7 +92,7 @@ clear:
         addi $s0, $s0, 1
         j l0
     e0:
-    # Epílogo
+    # Ep?logo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
     #
@@ -126,115 +104,64 @@ clear:
 # $a1 -> byte[9]
 draw_board:
     #
-    # $s0 -> a0
-    # $s1 -> a1
-    # $s2 -> Linha
-    # ra
+    # $s0
     #
-    # Prólogo
-    subi $sp, $sp, 16
+    # Pr?logo
+    subi $sp, $sp, 4
     sw $s0, 0($sp)
-    sw $s1, 4($sp)
-    sw $s2, 8($sp)
-    sw $ra, 12($sp)
     #
-
-    addi $s2, $0, 0
-    jal draw_line
-    addi $v0, $0, PRINT_STR
-    la $a0, str_separator
-    syscall
-
-    addi $s2, $0, 3
-    jal draw_line
-    addi $v0, $0, PRINT_STR
-    la $a0, str_separator
-    syscall
-
-    addi $s2, $0, 6
-    jal draw_line
-
-    j ret2
-
-    draw_line:
-        .macro Put_Char (%imm)
-            addi $t3, $s2, %imm
-
-            lb $a0, char_space
-            syscall
-
-            lb $a0, char_dash
-            add $t0, $s0, $t3
-            lb $t0, 0($t0)
-            bne $t0, $0, set_X
-            add $t0, $s1, $t3
-            lb $t0, 0($t0)
-            bne $t0, $0, set_O
-            syscall
-
-            lb $a0, char_space
-            syscall
-        .end_macro
-        #
-        # ra
-        #
-        # Prólogo
-        subi $sp, $sp, 4
-        sw $ra, 0($sp)
-        #
-
-        addi $v0, $0, PRINT_CHAR
-
-        Put_Char(0)
-
-        lb $a0, char_vertical
-        syscall 
-
-        Put_Char(1)
-
-        lb $a0, char_vertical
+    #
+    l3:           
+        addi $a0, $t0, $zero  
         syscall
-
-        Put_Char(2)
-        
-        j ret3
-
-        set_X:
-            lb $a0, char_X
-            jr $ra
-
-        set_O:
-            lb $a0, char_O
-            jr $ra
-
-        ret3:
-        # Epílogo
-        lw $ra, 0($sp)
-        addi $sp, $sp, 4
+        li $t0, 4
+        la $t0, char_space
+        li $t1, 4
+        la $t1, char_vertical
         #
-        jr $ra
+	l4:
+		bgt $s1, 12, l5
+		addi $s1, $s1, 4
+		j loop
+		#
+	l5:	
+		move $s1, $zero
+		li $t1, 56
+		print:
+			li $v0, 4
+			la $s0, str_separator
+			syscall
+		#	
+		jr $ra
+    # $a3 = 0
+    # desenha linha
+    # desenha separador
+    # a3 = 3
+    # desenha linha
+    # desenha separador
+    # a3 = 6
+    # desenha linha
 
-    ret2:
-        # Epílogo
-        lw $s0, 0($sp)
-        lw $s1, 4($sp)
-        lw $s2, 8($sp)
-        lw $ra, 12($sp)
-        addi $sp, $sp, 16
-        #
-        jr $ra
+    # (desenha linha deslocando pelo valor em $a3)
+    #desenha linha:
+        # la $v0, char_dash
+
+    # Ep?logo
+    lw $s0, 0($sp)
+    addi $sp, $sp, 4
+    #
 
 
 # Verifica se o jogador venceu a partida.
 # $a0 -> byte[12]
-# $v0 -> 1 se sim, 0 se não
+# $v0 -> 1 se sim, 0 se n?o
 check_winner:
     #
     # $s0 -> i
     # $s1 -> n
     # $ra
     #
-    # Prólogo
+    # Pr?logo
     subi $sp, $sp, 12
     sw $s0, 0($sp)
     sw $s1, 4($sp)
@@ -252,12 +179,12 @@ check_winner:
         
         la $a1, 0($t0)
         jal check
-        bne $v0, $0, ret1
+        bne $v0, $0, ret
 
         addi $s0, $s0, 1
         j l1
     e1:
-    j ret1
+    j ret
 
     # a0 -> byte[12]
     # a1 -> mask
@@ -265,7 +192,7 @@ check_winner:
         #
         # $s0 -> i
         #
-        # Prólogo
+        # Pr?logo
             subi $sp, $sp, 4
             sw $s0, 0($sp)
         #
@@ -283,7 +210,7 @@ check_winner:
 
                 la $t3, 0($a1)
                 add $t3, $t3, $t1
-                lw $t3, 0($t3) # <- Word máscara
+                lw $t3, 0($t3) # <- Word m?scara
 
                 and $t1, $t2, $t3
                 bne $t1, $t3, neq
@@ -296,14 +223,14 @@ check_winner:
                     j e2
 
             e2:
-                # Epílogo
+                # Ep?logo
                 lw $s0, 0($sp)
                 addi $sp, $sp, 4
                 #
                 jr $ra
     
-    ret1:
-        # Epílogo
+    ret:
+        # Ep?logo
         lw $s0, 0($sp)
         lw $s1, 4($sp)
         lw $ra, 8($sp)
@@ -316,47 +243,45 @@ check_winner:
 # a0: byte[9]
 # a1: byte[9]
 move_player:
- 	# Prólogo
+ 	# Pr?logo
 	subi $sp, $sp, 4
    	sw $s0, 0($sp)
     #
-    #t1 -> lin
-    la $t0, str_fail
-	addi $v0, $0, PRINT_STR
-	addi $v0, $zero, READ_INT 
-	syscall
-	move $v0, $s1
-	#t2 -> col
-	addi $v0, $zero, READ_INT
-	syscall
-	move $v0, $s2
-	sub $s1, $s1, 1    
-	sub $s2, $s2, 1
-	li $s3, 3
-	bgt $s1, $s3, move_fail
-	bgt $s2, $s3, move_fail
-	
-	mul $t3, $t1, $t3
-	add $t3, $t3, $t2
-		
-	bne $a0($t3), $0, accept_move			
-		
-	move_fail: 
-		la $t0, str_fail
+    receive_move:
+    	la $t0, str_moves
 		addi $v0, $0, PRINT_STR
-		j move_player
-			
-	accept_move:
-		lw $t3, 0($a0)      # $t3 = x[i], carregando o elemento do �ndice i      
-		addi $t3, $zero, 1  # somando os elementos (x[i] = 0+ 1
-		jr $ra
-		
-	#Epílogo
+		addi $v0, $zero, READ_INT 
+		syscall
+		move $s1, $v0 #s1 -> lin
+		addi $v0, $zero, READ_INT
+		syscall
+		move $s2, $v0 #s2 -> col
+		sub $s1, $s1, 1    
+		sub $s2, $s2, 1
+		li $s3, 3 
+		bgt $s1, $s3, move_fail
+		bgt $s2, $s3, move_fail
+	#
+		mul $t3, $t1, $t3
+		add $t3, $t3, $t2
+	#	
+		bne $a0($t3), $0, accept_move			
+	#		
+		move_fail: 
+			la $t0, str_fail
+			addi $v0, $0, PRINT_STR
+			j receive_move
+	#		
+		accept_move:
+			lw $t3, 0($a0)      # $t3 = x[i], carregando o elemento do �ndice i      
+			addi $t3, $zero, 1  # somando os elementos (x[i] = 0+ 1
+			jr $ra
+	#	
+	#Epilogo
 	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
-
-# Gera o movimento da inteligência artificial.
+# Gera o movimento da intelig?ncia aritificial.
 # a0: byte[9]
 # a1: byte[9]
 move_ai:
