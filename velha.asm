@@ -105,7 +105,29 @@ draw_board:
     subi $sp, $sp, 4
     sw $s0, 0($sp)
     #
-
+    #
+    l3:           
+        addi $a0, $t0, $zero  
+        syscall
+        li $t0, 4
+        la $t0, char_space
+        li $t1, 4
+        la $t1, char_vertical
+        #
+	l4:
+		bgt $s1, 12, l5
+		addi $s1, $s1, 4
+		j loop
+		#
+	l5:	
+		move $s1, $zero
+		li $t1, 56
+		print:
+			li $v0, 4
+			la $s0, str_separator
+			syscall
+		#	
+		jr $ra
 
     # Epílogo
     lw $s0, 0($sp)
