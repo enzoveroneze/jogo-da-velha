@@ -62,7 +62,7 @@ main:
    
    	li $s2, 0
     li $s3, 9
-   	li $t1, 1
+   
     # mensagem inicial
 	addi $v0, $zero, PRINT_STR
 	la $a0, str_start
@@ -71,9 +71,12 @@ main:
 	addi $v0, $zero, READ_INT
 	syscall
 
-    beq $v0, $t1, draw_board
+    jal draw_board
     
     loop:
+    	addi $v0, $zero, PRINT_STR
+		la $a0, str_exit
+		syscall
     	beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
 		jal move_player # movimento do jogador
 		jal check_winner # confere jogada
@@ -363,8 +366,8 @@ move_player:
    	sw $s0, 0($sp)
     #
     receive_move:
-    	la $t0, str_moves
 		addi $v0, $0, PRINT_STR
+		la $t0, str_moves
 		syscall
 		addi $v0, $zero, READ_INT 
 		syscall
@@ -384,14 +387,14 @@ move_player:
 		bne $s3, $0, accept_move			
 	#		
 		move_fail: 
-			la $t0, str_fail
+			la $a0, str_fail
 			addi $v0, $0, PRINT_STR
 			syscall
 			j receive_move
 	#		
 		accept_move:
 			#li 
-			lb $s4, 1($s3)      # $s3 = x[i], carregando o elemento do ?ndice i      
+			lb $s4, 0($s3)      # $s3 = x[i], carregando o elemento do ?ndice i      
 			addi $s4, $zero, 1  # somando os elementos (x[i] = 0+ 1
 			jr $ra
 	#	
