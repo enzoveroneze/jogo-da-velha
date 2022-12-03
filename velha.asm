@@ -14,7 +14,7 @@ char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
-str_start:      .asciiz "\n\nBem vindo ao jogo da velha.\n\n"
+str_start:      .asciiz "\n\nBem vindo ao jogo da velha.\nDigite 1 para começar a jogar. \n"
 str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
 str_fail:       .asciiz "\nNumeros invalidos, insira novamente."
 str_tie:        .asciiz "\nPartida empatada."
@@ -59,16 +59,19 @@ main:
     la, $s1, 12($sp)
     move $a1, $s1
     jal clear
-    
+   
+   	li $s2, 0
+    li $s3, 9
+   	li $t1, 1
     # mensagem inicial
 	addi $v0, $zero, PRINT_STR
 	la $a0, str_start
 	syscall
-
-    jal draw_board
 	
-    li $s2, 0
-    li $s3, 9
+	addi $v0, $zero, READ_INT
+	syscall
+
+    beq $v0, $t1, draw_board
     
     loop:
     	beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
@@ -76,7 +79,6 @@ main:
 		jal check_winner # confere jogada
 		bne $v0, $0, win
 		addi $s2, $0, 1 # i++
-		
 		
 		jal move_ai # movimento ia
 		jal check_winner # confere jogada
@@ -397,17 +399,17 @@ move_player:
 	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
-# Gera o movimento da inteligï¿½ncia aritificial.
+# Gera o movimento da intelig?ncia aritificial.
 # a0: byte[9]
 # a1: byte[9]
-# a2: nÃºmero da rodada
+# a2: número da rodada
 move_ai:
     #
     # $ra
     # $s0 -> $a0
     # $s1 -> $a1
     #
-    # PrÃ³logo
+    # Prólogo
     subi $sp, $0, 36
     sw $ra, 0($sp)
     sw $s0, 4($sp)
@@ -430,7 +432,7 @@ move_ai:
     jal simulate
     bne $v0 $0, ret4
 
-    ## Gera jogada aleatÃ³ria
+    ## Gera jogada aleatória
 
     addi $v0, $0, TIME
     syscall
@@ -480,7 +482,7 @@ move_ai:
 
     # a0: byte[9] -> Vetor X
     # a1: byte[9] -> Vetor O
-    # a2: byte[9] -> Vetor simulaï¿½ï¿½o
+    # a2: byte[9] -> Vetor simula??o
     simulate:
         #
         # ra
@@ -491,7 +493,7 @@ move_ai:
         # $s4 -> 9
         # $s5 -> a2 + i
         #
-        # PrÃ³logo
+        # Prólogo
         subi $sp, $0, 28
         sw $ra, 0($sp)
         sw $s0, 4($sp)
@@ -513,7 +515,7 @@ move_ai:
             add $s5, $s2, $s3
             addi $t0, $0, 1
             sb $t0, 0($s5)
-            la $a0, $s2
+            la $a0, ($s2)
             jal check_winner
             
             addi $t0, $0, 0
@@ -535,7 +537,7 @@ move_ai:
         addi $v0, $0, 0
         t3:
 
-        # Epï¿½logo
+        # Ep?logo
         lw $ra, 0($sp)
         lw $s0, 4($sp)
         lw $s1, 8($sp)
@@ -548,7 +550,7 @@ move_ai:
         jr $ra
 
     ret4:
-    # Epï¿½logo
+    # Ep?logo
     lw $ra, 0($sp)
     lw $s0, 4($sp)
     lw $s1, 12($sp)
