@@ -397,32 +397,90 @@ move_player:
 	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
-# Gera o movimento da inteligência aritificial.
+# Gera o movimento da inteligï¿½ncia aritificial.
 # a0: byte[9]
 # a1: byte[9]
+# a2: nÃºmero da rodada
 move_ai:
     #
     # $ra
     # $s0 -> $a0
     # $s1 -> $a1
     #
-    # Prólogo
-    #subi $sp, 12
+    # PrÃ³logo
+    subi $sp, $0, 36
     sw $ra, 0($sp)
     sw $s0, 4($sp)
-    sw $s1, 8($sp)
+    sw $s1, 12($sp)
+    sw $s2, 16($sp)
+    sw $s3, 20($sp)
+    sw $s4, 24($sp)
+    sw $s5, 28($sp)
+    sw $s6, 32($sp)
     #
     move $s0, $a0
     move $s1, $a1
+    move $s2, $a2
 
-    move $a3, $s0
+    move $a2, $s1
     jal simulate
+    bne $v0, $0, ret4
 
+    move $a2, $s0
+    jal simulate
+    bne $v0 $0, ret4
+
+    ## Gera jogada aleatÃ³ria
+
+    addi $v0, $0, TIME
+    syscall
+    move $t0, $a0
+
+    addi $v0, $0, SET_SEED
+    addi $a0, $0, 0
+    move $a1, $t0
+    syscall
+    
+    addi $t0, $0, 10
+    sub $t0, $t0, $s2
+    addi $v0, $0, RAND_INT
+    addi $a0, $0, 0
+    add $a1, $0, $t0
+    syscall
+
+    move $s3, $a0
+
+    addi $s4, $0, 0 # <- i
+    addi $s5, $0, 9
+    addi $s6, $0, 0
+    l4:
+        beq $s4, $s5, e4
+        add $t0, $s0, $s4
+        lb $t0, 0($t0)
+        bne $t0, $0, c4
+        add $t0, $s1, $s4
+        lb $t0, 0($t0)
+        bne $t0, $0, c4
+
+        beq $s6, $s3, rnd
+
+        addi $s6, $s6, 1
+
+        c4:
+        addi $s4, $s4, 1
+        j l4
+
+        rnd:
+            addi $t1, $0, 1
+            sb $t1, 0($t0)
+            j c4
+    e4:
+    j ret4
 
 
     # a0: byte[9] -> Vetor X
     # a1: byte[9] -> Vetor O
-    # a2: byte[9] -> Vetor simulação
+    # a2: byte[9] -> Vetor simulaï¿½ï¿½o
     simulate:
         #
         # ra
@@ -433,8 +491,8 @@ move_ai:
         # $s4 -> 9
         # $s5 -> a2 + i
         #
-        # Prólogo
-        subi $sp, $sp, 28
+        # PrÃ³logo
+        subi $sp, $0, 28
         sw $ra, 0($sp)
         sw $s0, 4($sp)
         sw $s1, 8($sp)
@@ -454,18 +512,18 @@ move_ai:
 
             add $s5, $s2, $s3
             addi $t0, $0, 1
-            sw $t0, 0($s5)
-            la $a0, ($s2)
+            sb $t0, 0($s5)
+            la $a0, $s2
             jal check_winner
             
             addi $t0, $0, 0
-            sw $t0, 0($s5)
+            sb $t0, 0($s5)
             
             beq $v0, $0, c3
 
             add $t0, $s1, $s3
             addi $t1, $0, 1
-            sw $t1, 0($t0)
+            sb $t1, 0($t0)
             j e3
 
             c3:
@@ -477,7 +535,7 @@ move_ai:
         addi $v0, $0, 0
         t3:
 
-        # Epílogo
+        # Epï¿½logo
         lw $ra, 0($sp)
         lw $s0, 4($sp)
         lw $s1, 8($sp)
@@ -490,10 +548,15 @@ move_ai:
         jr $ra
 
     ret4:
-    # Epílogo
+    # Epï¿½logo
     lw $ra, 0($sp)
     lw $s0, 4($sp)
-    lw $s1, 8($sp)
-    addi $sp, $sp, 12
+    lw $s1, 12($sp)
+    lw $s2, 16($sp)
+    lw $s3, 20($sp)
+    lw $s4, 24($sp)
+    lw $s5, 28($sp)
+    lw $s6, 32($sp)
+    addi $sp, $0, 36
     #
     jr $ra
