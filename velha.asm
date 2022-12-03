@@ -476,6 +476,7 @@ move_ai:
             sb $t1, 0($t0)
             j c4
     e4:
+    j ret4
 
 
     # a0: byte[9] -> Vetor X
