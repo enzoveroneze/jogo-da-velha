@@ -134,22 +134,13 @@ draw_board:
     # $s2 -> Linha
     # ra
     #
-    # Prólogo
+    # Prï¿½logo
     subi $sp, $sp, 16
     sw $s0, 0($sp)
     sw $s1, 4($sp)
     sw $s2, 8($sp)
     sw $ra, 12($sp)
     #
-    #
-    # $a3 = 0
-    # desenha linha
-    # desenha separador
-    # a3 = 3
-    # desenha linha
-    # desenha separador
-    # a3 = 6
-    # desenha linha
 
     addi $s2, $0, 0
     jal draw_line
@@ -190,7 +181,7 @@ draw_board:
         #
         # ra
         #
-        # Prólogo
+        # Prï¿½logo
         subi $sp, $sp, 4
         sw $ra, 0($sp)
         #
@@ -220,14 +211,14 @@ draw_board:
             jr $ra
 
         ret3:
-        # Epílogo
+        # Epï¿½logo
         lw $ra, 0($sp)
         addi $sp, $sp, 4
         #
         jr $ra
 
     ret2:
-        # Epílogo
+        # Epï¿½logo
         lw $s0, 0($sp)
         lw $s1, 4($sp)
         lw $s2, 8($sp)
@@ -359,7 +350,7 @@ move_player:
 		accept_move:
 			li $t1, 4
 			mul $t2, $t1, $s3
-			lb $s3, $t2($a0)      # $s3 = x[i], carregando o elemento do índice i      
+			lb $s3, $t2($a0)      # $s3 = x[i], carregando o elemento do ï¿½ndice i      
 			addi $s3, $zero, 1  # somando os elementos (x[i] = 0+ 1
 			jr $ra
 	#	
