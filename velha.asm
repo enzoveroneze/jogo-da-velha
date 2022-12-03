@@ -74,9 +74,6 @@ main:
     jal draw_board
     
     loop:
-    	addi $v0, $zero, PRINT_STR
-		la $a0, str_exit
-		syscall
     	beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
 		jal move_player # movimento do jogador
 		jal check_winner # confere jogada
