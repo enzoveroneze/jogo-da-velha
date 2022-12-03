@@ -14,9 +14,13 @@ char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
-str_start:      .asciiz ""
+str_start:      .asciiz "Bem vindo ao jogo da velha."
 str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
 str_fail:       .asciiz "\nN?meros inv?lidos, insira novamente."
+str_tie:        .asciiz "\nPartida empatada."
+str_win:        .asciiz "\nO último jogador venceu a partida."
+str_end:        .asciiz "\nDeseja jogar novamente? Digite 1 para sim, 0 para nao.\n\n"
+
 
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 mask_2:         .byte   0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0
@@ -58,30 +62,65 @@ main:
 
     jal draw_board
 
-  	# mensagem inicial
+	# mensagem inicial
+	addi $v0, $zero, PRINT_STR
+	la $a0, str_start
+	syscall
+	#
     # contador de jogadas i = 0
-    # loop:
-        # se i == 9: carrega mensagem empate e vai pro fim
-        # mostra tabuleiro
-        # movimento do jogador
-        # confere jogada
-            # se venceu: carrega mensagem da vitoria X e vai pro fim
-        # mostra tabuleiro
-        # movimento ia
-        # confere jogada
-            # se venceu: carrega mesagem da vitoria O e vai pro fim
-        # i++
-        # jump loop
-    # fim:
-        # mostra mensagem do resultado
-        # pergunta se quer jogar de novo
-        # recebe resposta
-        # se S:
-            # chama clear nos vetores
-            # i = 0
-            # jump loop
-        #deixa terminar o programa
-
+    li $s2, 0
+    li $s3, 9
+    #
+    loop:
+    	beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
+		jal move_player # movimento do jogador
+		jal check_winner # confere jogada
+		beq algo, algo, win
+		#
+		jal move_ai # movimento ia
+		jal check_winner # confere jogada
+		beq algo, algo, win  # se venceu: carrega mesagem da vitoria O e vai pro fim
+		#
+		addi $s2, $0, 1    # i++
+		j loop # jump loop
+		
+		#
+		tie_round:
+			addi $v0, $0, PRINT_STR
+			la $a0, str_tie
+			syscall
+			jal draw_board # mostra tabuleiro
+			j fim
+		
+		#
+		win:
+			addi $v0, $0, PRINT_STR
+			la $a0, str_win
+			syscall
+			jal draw_board
+			j fim
+		
+		#	
+		fim:
+			addi $v0, $0, PRINT_STR
+			la $a0, str_end # pergunta se quer jogar de novo
+			addi $v0, $zero, READ_INT # recebe resposta
+			syscall
+			move $t1, $v0 
+			#
+         	bne $t1, $0, play_again # se t1 != 0
+         	#
+         	addi $v0, $0, PRINT_STR
+         	la $a0, str_exit
+         	j exit #deixa terminar o programa
+        
+        # 	
+		play_again:
+			jal clear # chama clear nos vetores
+			li $s2, 0 # i = 0
+			j loop 
+		
+		
     addi $a0, $0, SUCCESS
     j exit
 
@@ -263,12 +302,12 @@ check_winner:
         
         la $a1, 0($t0)
         jal check
-        bne $v0, $0, ret
+      	bne $v0, $0, ret1
 
         addi $s0, $s0, 1
         j l1
     e1:
-    j ret
+    j ret1
 
     # a0 -> byte[12]
     # a1 -> mask
@@ -280,7 +319,6 @@ check_winner:
             subi $sp, $sp, 4
             sw $s0, 0($sp)
         #
-
             addi $s0, $0, 0 
             addi $t0, $0, 4
             addi $v0, $0, 1
@@ -313,7 +351,7 @@ check_winner:
                 #
                 jr $ra
     
-    ret:
+    ret1:
         # Ep?logo
         lw $s0, 0($sp)
         lw $s1, 4($sp)
@@ -334,14 +372,15 @@ move_player:
     receive_move:
     	la $t0, str_moves
 		addi $v0, $0, PRINT_STR
+		syscall
 		addi $v0, $zero, READ_INT 
 		syscall
 		move $s1, $v0 #s1 -> lin
 		addi $v0, $zero, READ_INT
 		syscall
 		move $s2, $v0 #s2 -> col
-		sub $s1, $s1, 1    
-		sub $s2, $s2, 1
+		subi $s1, $s1, 1    
+		subi $s2, $s2, 1
 		li $s3, 3 
 		bgt $s1, $s3, move_fail
 		bgt $s2, $s3, move_fail
@@ -349,11 +388,12 @@ move_player:
 		mul $s3, $s1, $s3
 		add $s3, $s3, $s2
 	#
-		bne $a0($s3), $0, accept_move			
+		bne $s3, $0, accept_move			
 	#		
 		move_fail: 
 			la $t0, str_fail
 			addi $v0, $0, PRINT_STR
+			syscall
 			j receive_move
 	#		
 		accept_move:
