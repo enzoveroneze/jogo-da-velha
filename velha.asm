@@ -68,7 +68,7 @@ main:
 	la $a0, str_start
 	syscall
 	
-	addi $v0, $zero, READ_INT
+	addi $v0, $0, READ_INT
 	syscall
 
     jal draw_board
