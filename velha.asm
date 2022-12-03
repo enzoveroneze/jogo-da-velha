@@ -409,7 +409,7 @@ move_ai:
     # $s1 -> $a1
     #
     # Prólogo
-    subi $sp, 36
+    subi $sp, $0, 36
     sw $ra, 0($sp)
     sw $s0, 4($sp)
     sw $s1, 12($sp)
@@ -493,7 +493,7 @@ move_ai:
         # $s5 -> a2 + i
         #
         # Prólogo
-        subi $sp, 28
+        subi $sp, $0, 28
         sw $ra, 0($sp)
         sw $s0, 4($sp)
         sw $s1, 8($sp)
