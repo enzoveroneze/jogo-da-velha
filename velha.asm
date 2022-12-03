@@ -14,6 +14,7 @@ char_dash:      .byte   '-'
 char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 str_separator:  .asciiz "\n---|---|---\n"
+str_start:      .asciiz ""
 str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
 str_fail:       .asciiz "\nN?meros inv?lidos, insira novamente."
 
@@ -48,15 +49,38 @@ main:
     # $s1: byte[12] -> Vetor O
     #
     subi $sp, $sp, 24
-    la $fp, 24($sp)
-
-    la, $s0, 0($fp)
+    la, $s0, 0($sp)
     move $a0, $s0
     jal clear
-    la, $s1, -12($fp)
-    move $a0, $s1
+    la, $s1, 12($sp)
+    move $a1, $s1
     jal clear
 
+    jal draw_board
+
+  	# mensagem inicial
+    # contador de jogadas i = 0
+    # loop:
+        # se i == 9: carrega mensagem empate e vai pro fim
+        # mostra tabuleiro
+        # movimento do jogador
+        # confere jogada
+            # se venceu: carrega mensagem da vitoria X e vai pro fim
+        # mostra tabuleiro
+        # movimento ia
+        # confere jogada
+            # se venceu: carrega mesagem da vitoria O e vai pro fim
+        # i++
+        # jump loop
+    # fim:
+        # mostra mensagem do resultado
+        # pergunta se quer jogar de novo
+        # recebe resposta
+        # se S:
+            # chama clear nos vetores
+            # i = 0
+            # jump loop
+        #deixa terminar o programa
 
     addi $a0, $0, SUCCESS
     j exit
@@ -102,37 +126,22 @@ clear:
 # Desenha o estado atual do tabuleiro
 # $a0 -> byte[9]
 # $a1 -> byte[9]
+
 draw_board:
     #
-    # $s0
+    # $s0 -> a0
+    # $s1 -> a1
+    # $s2 -> Linha
+    # ra
     #
-    # Pr?logo
-    subi $sp, $sp, 4
+    # Prólogo
+    subi $sp, $sp, 16
     sw $s0, 0($sp)
+    sw $s1, 4($sp)
+    sw $s2, 8($sp)
+    sw $ra, 12($sp)
     #
     #
-    l3:           
-        addi $a0, $t0, $zero  
-        syscall
-        li $t0, 4
-        la $t0, char_space
-        li $t1, 4
-        la $t1, char_vertical
-        #
-	l4:
-		bgt $s1, 12, l5
-		addi $s1, $s1, 4
-		j loop
-		#
-	l5:	
-		move $s1, $zero
-		li $t1, 56
-		print:
-			li $v0, 4
-			la $s0, str_separator
-			syscall
-		#	
-		jr $ra
     # $a3 = 0
     # desenha linha
     # desenha separador
@@ -142,15 +151,90 @@ draw_board:
     # a3 = 6
     # desenha linha
 
-    # (desenha linha deslocando pelo valor em $a3)
-    #desenha linha:
-        # la $v0, char_dash
+    addi $s2, $0, 0
+    jal draw_line
+    addi $v0, $0, PRINT_STR
+    la $a0, str_separator
+    syscall
 
-    # Ep?logo
-    lw $s0, 0($sp)
-    addi $sp, $sp, 4
-    #
+    addi $s2, $0, 3
+    jal draw_line
+    addi $v0, $0, PRINT_STR
+    la $a0, str_separator
+    syscall
 
+    addi $s2, $0, 6
+    jal draw_line
+
+    j ret2
+
+    draw_line:
+        .macro Put_Char (%imm)
+            addi $t3, $s2, %imm
+
+            lb $a0, char_space
+            syscall
+
+            lb $a0, char_dash
+            add $t0, $s0, $t3
+            lb $t0, 0($t0)
+            bne $t0, $0, set_X
+            add $t0, $s1, $t3
+            lb $t0, 0($t0)
+            bne $t0, $0, set_O
+            syscall
+
+            lb $a0, char_space
+            syscall
+        .end_macro
+        #
+        # ra
+        #
+        # Prólogo
+        subi $sp, $sp, 4
+        sw $ra, 0($sp)
+        #
+
+        addi $v0, $0, PRINT_CHAR
+
+        Put_Char(0)
+
+        lb $a0, char_vertical
+        syscall 
+
+        Put_Char(1)
+
+        lb $a0, char_vertical
+        syscall
+
+        Put_Char(2)
+
+        j ret3
+
+        set_X:
+            lb $a0, char_X
+            jr $ra
+
+        set_O:
+            lb $a0, char_O
+            jr $ra
+
+        ret3:
+        # Epílogo
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4
+        #
+        jr $ra
+
+    ret2:
+        # Epílogo
+        lw $s0, 0($sp)
+        lw $s1, 4($sp)
+        lw $s2, 8($sp)
+        lw $ra, 12($sp)
+        addi $sp, $sp, 16
+        #
+        jr $ra
 
 # Verifica se o jogador venceu a partida.
 # $a0 -> byte[12]
