@@ -18,7 +18,7 @@ str_start:      .asciiz "Bem vindo ao jogo da velha."
 str_moves:      .asciiz "\nInsira linha e coluna para jogada: "
 str_fail:       .asciiz "\nN?meros inv?lidos, insira novamente."
 str_tie:        .asciiz "\nPartida empatada."
-str_win:        .asciiz "\nO �ltimo jogador venceu a partida."
+str_win:        .asciiz "\nO �ltimo jogador venceu a partida."
 str_end:        .asciiz "\nDeseja jogar novamente? Digite 1 para sim, 0 para nao.\n\n"
 
 
@@ -257,14 +257,14 @@ draw_board:
         jr $ra
 
     ret2:
-        # Ep�logo
-        lw $s0, 0($sp)
-        lw $s1, 4($sp)
-        lw $s2, 8($sp)
-        lw $ra, 12($sp)
-        addi $sp, $sp, 16
-        #
-        jr $ra
+    # Ep�logo
+    lw $s0, 0($sp)
+    lw $s1, 4($sp)
+    lw $s2, 8($sp)
+    lw $ra, 12($sp)
+    addi $sp, $sp, 16
+    #
+    jr $ra
 
 # Verifica se o jogador venceu a partida.
 # $a0 -> byte[12]
@@ -398,7 +398,103 @@ move_player:
 	lw $s0, 0($sp)
 	addi $sp, $sp, 4
 
-# Gera o movimento da intelig?ncia aritificial.
+# Gera o movimento da inteligência aritificial.
 # a0: byte[9]
 # a1: byte[9]
 move_ai:
+    #
+    # $ra
+    # $s0 -> $a0
+    # $s1 -> $a1
+    #
+    # Prólogo
+    subi $sp, 12
+    sw $ra, 0($sp)
+    sw $s0, 4($sp)
+    sw $s1, 8($sp)
+    #
+    move $s0, $a0
+    move $s1, $a1
+
+    move $a3, s0
+    jal simulate
+
+
+
+    # a0: byte[9] -> Vetor X
+    # a1: byte[9] -> Vetor O
+    # a2: byte[9] -> Vetor simulação
+    simulate:
+        #
+        # ra
+        # $s0 -> a0
+        # $s1 -> a1
+        # $s2 -> a2
+        # $s3 -> i
+        # $s4 -> 9
+        # $s5 -> a2 + i
+        #
+        # Prólogo
+        subi $sp, 28
+        sw $ra, 0($sp)
+        sw $s0, 4($sp)
+        sw $s1, 8($sp)
+        sw $s2, 12($sp)
+        sw $s3, 16($sp)
+        sw $s4, 20($sp)
+        sw $s5, 24($sp)
+        #
+        addi $s3, $0, 0
+        addi $s4, $0, 9
+        l3:
+            beq $s3, $s4, e3
+            add $t0, $s0, $s3
+            bne $0, $t0, c3
+            add $t0, $s1, $s3
+            bne $0, $t0, c3
+
+            add $s5, $s2, $s3
+            addi $t0, $0, 1
+            sw $t0, 0($s5)
+            la $a0, $s2
+            jal check_winner
+            
+            addi $t0, $0, 0
+            sw $t0, 0($s5)
+            
+            beq $v0, $0, c3
+
+            add $t0, $s1, $s3
+            addi $t1, $0, 1
+            sw $t1, 0($t0)
+            j e3
+
+            c3:
+            addi $s3, $s3, 1
+            j l3
+        e3:
+        addi $v0, $0, 1
+        blt $s3, $s4, t3
+        addi $v0, $0, 0
+        t3:
+
+        # Epílogo
+        lw $ra, 0($sp)
+        lw $s0, 4($sp)
+        lw $s1, 8($sp)
+        lw $s2, 12($sp)
+        lw $s3, 16($sp)
+        lw $s4, 20($sp)
+        lw $s5, 24($sp)
+        addi $sp, $0, 28
+        #
+        jr $ra
+
+    ret4:
+    # Epílogo
+    lw $ra, 0($sp)
+    lw $s0, 4($sp)
+    lw $s1, 8($sp)
+    addi $sp, 12
+    #
+    jr $ra
