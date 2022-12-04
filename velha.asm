@@ -15,15 +15,16 @@ char_vertical:  .byte   '|'
 char_space:     .byte   ' '
 char_newline:   .byte   '\n'
 str_separator:  .asciiz "\n---|---|---\n"
-str_start:      .asciiz "\n\nBem vindo ao Jogo da Velha.\nDigite 1 para começar a jogar, 0 para sair. \n"
-str_move_lin:      .asciiz "\nInsira a linha a para jogada (1 - 3): "
-str_move_col:      .asciiz "\nInsira a coluna a para jogada (1 - 3): "
-str_fail:       .asciiz "\nNúmeros inválidos, insira novamente."
+str_start:      .asciiz "\n\nBem vindo ao Jogo da Velha.\nDigite 1 para começar a jogar, 0 para sair: "
+str_move_lin:   .asciiz "Insira a linha a para jogada (1 - 3): "
+str_move_col:   .asciiz "Insira a coluna a para jogada (1 - 3): "
+str_ai:         .asciiz "Vez do computador...\n"
+str_fail:       .asciiz "\nNúmeros inválidos, insira novamente.\n"
 str_tie:        .asciiz "\nPartida empatada.\n"
 str_win_X:      .asciiz "\nO jogador X venceu a partida.\n"
 str_win_O:      .asciiz "\nO jogador O venceu a partida.\n"
-str_end:        .asciiz "\nDeseja jogar novamente? Digite 1 para sim, 0 para não.\n\n"
-str_exit:       .asciiz "\nJogo finalizado."
+str_end:        .asciiz "\nDeseja jogar novamente? Digite 1 para sim, 0 para não: "
+str_exit:       .asciiz "\nJogo finalizado.\n"
 
 mask_1:         .byte   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 mask_2:         .byte   0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0
@@ -66,7 +67,6 @@ main:
     addi $s2, $0, 0
     addi $s3, $0, 9
    
-    # mensagem inicial
 	addi $v0, $0, PRINT_STR
 	la $a0, str_start
 	syscall
@@ -86,39 +86,43 @@ main:
     loop:
         la $a0, 0($s0)
         la $a1, 0($s1)
-		jal move_player # movimento do jogador
+		jal move_player
 
         la $a0, 0($s0)
-		jal check_winner # confere jogada
+		jal check_winner
 		bne $v0, $0, win_X
 
         la $a0, 0($s0)
         la $a1, 0($s1)
         jal draw_board
 
-		addi $s2, $s2, 1 # i++
-        beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
+		addi $s2, $s2, 1
+        beq $s2, $s3, tie_round
 		
         la $a0, 0($s0)
         la $a1, 0($s1)
         add $a2, $0, $s2
-		jal move_ai # movimento ia
+		jal move_ai
 
         la $a0, 0($s1)
-		jal check_winner # confere jogada
-        bne $v0, $0, win_O  # se venceu: carrega mesagem da vitoria O e vai pro fim
+		jal check_winner
+        bne $v0, $0, win_O
 
         la $a0, 0($s0)
         la $a1, 0($s1)
         jal draw_board
 
-		addi $s2, $s2, 1    # i++
-        beq $s2, $s3, tie_round # se i == 9: carrega mensagem empate e vai pro fim
+		addi $s2, $s2, 1
+        beq $s2, $s3, tie_round
 		
 		j loop
 		
 		tie_round:
-			addi $v0, $0, PRINT_STR
+            la $a0, 0($s0)
+            la $a1, 0($s1)
+            jal draw_board
+
+            addi $v0, $0, PRINT_STR
 			la $a0, str_tie
 			syscall
 
@@ -126,44 +130,52 @@ main:
 		
 		
 		win_X:
-			addi $v0, $0, PRINT_STR
+            la $a0, 0($s0)
+            la $a1, 0($s1)
+            jal draw_board
+
+            addi $v0, $0, PRINT_STR
 			la $a0, str_win_X
             syscall
+
 			j fim
 
 
         win_O:
-        	addi $v0, $0, PRINT_STR
+            la $a0, 0($s0)
+            la $a1, 0($s1)
+            jal draw_board
+
+            addi $v0, $0, PRINT_STR
 			la $a0, str_win_O
             syscall
+
+
 			j fim
 
 			
 		fim:
 
-            la $a0, 0($s0)
-            la $a1, 0($s1)
-            jal draw_board
-
 			addi $v0, $0, PRINT_STR
-			la $a0, str_end # pergunta se quer jogar de novo
+			la $a0, str_end
             syscall
 
-			addi $v0, $zero, READ_INT # recebe resposta
+			addi $v0, $0, READ_INT
 			syscall
 
-         	bne $v0, $0, play_again # se t1 != 0
+         	bne $v0, $0, play_again
          	
          	addi $v0, $0, PRINT_STR
          	la $a0, str_exit
+            syscall
 
             addi $a0, $0, SUCCESS
-         	j exit #deixa terminar o programa
+         	j exit
         
          	
 		play_again:
             la $a0, 0($s0)
-			jal clear # chama clear nos vetores
+			jal clear
             la $a0, 0($s1)
             jal clear
 
@@ -171,7 +183,7 @@ main:
             la $a1, 0($s1)
             jal draw_board
 
-			addi $s2, $0, 0 # i = 0
+			addi $s2, $0, 0
 			j loop 
 		
     addi $a0, $0, SUCCESS
@@ -191,7 +203,7 @@ clear:
     #
     # $s0 -> i
     #
-    # Pr?logo
+    # Prólogo
     subi $sp, $sp, 4
     sw $s0, 0($sp) 
     #
@@ -208,7 +220,7 @@ clear:
         addi $s0, $s0, 1
         j l0
     e0:
-    # Epilogo
+    # Epílogo
     lw $s0, 0($sp)
     addi $sp, $sp, 4
     #
@@ -232,6 +244,10 @@ draw_board:
     sw $s2, 8($sp)
     sw $ra, 12($sp)
     #
+
+    addi $v0, $0, PRINT_CHAR
+    lb $a0, char_newline
+    syscall
 
     addi $s2, $0, 0
     jal draw_line
@@ -336,7 +352,7 @@ check_winner:
     # $s1 -> n
     # $ra
     #
-    # Prologo
+    # Prólogo
     subi $sp, $sp, 12
     sw $s0, 0($sp)
     sw $s1, 4($sp)
@@ -375,7 +391,7 @@ check_winner:
         #
         # $s0 -> i
         #
-        # Prologo
+        # Prólogo
             subi $sp, $sp, 4
             sw $s0, 0($sp)
         #
@@ -402,14 +418,14 @@ check_winner:
                     j e2
 
             e2:
-                # Epilogo
+                # Epílogo
                 lw $s0, 0($sp)
                 addi $sp, $sp, 4
                 #
                 jr $ra
     
     ret1:
-        # Epilogo
+        # Epílogo
         lw $s0, 0($sp)
         lw $s1, 4($sp)
         lw $ra, 8($sp)
@@ -427,7 +443,7 @@ move_player:
     # s1
     # s2
     #
- 	# Prologo
+ 	# Prólogo
 	subi $sp, $sp, 20
     sw $s0, 0($sp)
     sw $s1, 4($sp)
@@ -442,7 +458,7 @@ move_player:
 		la $a0, str_move_lin
 		syscall
 
-		addi $v0, $zero, READ_INT 
+		addi $v0, $0, READ_INT 
 		syscall
 		move $s0, $v0 #s0 -> lin
 
@@ -450,20 +466,26 @@ move_player:
 		la $a0, str_move_col
 		syscall
 
-		addi $v0, $zero, READ_INT
+		addi $v0, $0, READ_INT
 		syscall
 		move $s1, $v0 #s1 -> col
+
+        addi $v0, $0, PRINT_CHAR
+        la $a0, char_newline
+        syscall
+
+        addi $s2, $0, 3
+        ble $s0, $0, move_fail
+        ble $s1, $0, move_fail
+		bgt $s0, $s2, move_fail
+		bgt $s1, $s2, move_fail
 
 		subi $s0, $s0, 1    
 		subi $s1, $s1, 1
 
-		addi $s2, $0, 3
-		bgt $s0, $s2, move_fail
-		bgt $s1, $s2, move_fail
-	#
 		mul $s2, $s0, $s2
 		add $s2, $s1, $s2
-	#
+
 		add $t0, $s2, $s3
         lb $t0, 0($t0)
         bne $t0, $0, move_fail
@@ -473,13 +495,13 @@ move_player:
         bne $t0, $0, move_fail
 
         j accept_move
-	#		
+
 		move_fail: 
 			la $a0, str_fail
 			addi $v0, $0, PRINT_STR
 			syscall
 			j receive_move
-	#		
+			
 		accept_move:
 			add $t0, $s2, $s3
             addi $t1, $0, 1
@@ -493,7 +515,9 @@ move_player:
             lw $s4, 16($sp)
             addi $sp, $sp, 20
             #
+            
 			jr $ra
+
 
 # Gera o movimento da inteligência aritificial.
 # a0: byte[9]
@@ -521,9 +545,14 @@ move_ai:
     sw $s5, 28($sp)
     sw $s6, 32($sp)
     #
+
     move $s0, $a0
     move $s1, $a1
     move $s2, $a2
+
+    addi $v0, $0, PRINT_STR
+    la $a0, str_ai
+    syscall
 
     la $a0, 0($s0)
     la $a1, 0($s1)
@@ -555,11 +584,11 @@ move_ai:
     add $a1, $0, $t0
     syscall
 
-    add $s3, $0, $a0 # números de espaços vazios para passar
+    add $s3, $0, $a0 # Número de espaços vazios para passar
 
     addi $s4, $0, 0 # <- i
     addi $s5, $0, 9
-    addi $s6, $0, 0 # espaços vazios
+    addi $s6, $0, 0 # Contador de espaços vazios
     l4:
         beq $s4, $s5, e4
 
