@@ -3,6 +3,7 @@
 # Enzo Hahn Veroneze
 # Rafaela da Rosa Soares
 
+#--------------------------------
 
 # Prioridade em procedimentos:
 # $a0 => Vetor X
