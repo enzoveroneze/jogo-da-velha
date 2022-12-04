@@ -1,3 +1,9 @@
+# Jogo da Velha em Assembly MIPS
+# Feito por:
+# Enzo Hahn Veroneze
+# Rafaela da Rosa Soares
+
+
 # Prioridade em procedimentos:
 # $a0 => Vetor X
 # $a1 => Vetor O
